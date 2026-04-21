@@ -1,31 +1,62 @@
-# 📚 HW-to-LINE Notifier
+# HW-to-LINE Notifier (Node.js)
 
-ระบบแจ้งเตือนการบ้านผ่านเว็บฟอร์ม ส่งตรงเข้า LINE Group ทันที
+ระบบแจ้งเตือนการบ้านผ่านเว็บฟอร์ม และส่งข้อความเข้า LINE Group โดยใช้ Node.js/Express
 
-## 🛠 วิธีติดตั้ง
-1. ติดตั้ง Library ที่จำเป็น:
-   ```bash
-   pip install flask requests waitress
-   ```
-2. แก้ไขไฟล์ `app.py`:
-   - ใส่ **LINE_ACCESS_TOKEN**
-   - ใส่ **LINE_GROUP_ID**
+## Project Structure
 
-## 🚀 วิธีใช้งาน
-1. รันเซิร์ฟเวอร์:
-   python app.py
-2. เข้าใช้งานผ่านเบราว์เซอร์:
-   `http://localhost:8080`
+```
+.
+|-- package.json
+|-- .env.example
+`-- src/
+    |-- app.js
+    |-- server.js
+    |-- config/
+    |   `-- env.js
+    |-- routes/
+    |   `-- notifyRoutes.js
+    |-- services/
+    |   |-- lineClient.js
+    |   `-- messageBuilder.js
+    `-- views/
+        `-- index.html
+```
 
-## 📄 ข้อมูลโปรเจกต์
-- **Port:** 8080
-- **Engine:** Python Flask + Waitress
-- **UI:** CSS Modern Responsive
+## Setup
 
-### 💡 วิธีรัน (Step-by-Step)
-1. ก๊อปปี้โค้ดในข้อ **1** ไปวางในไฟล์ชื่อ `app.py`
-2. ก๊อปปี้โค้ดในข้อ **2** ไปวางในไฟล์ชื่อ `README.md`
-3. เปิด Command Prompt หรือ Terminal ในโฟลเดอร์นั้น
-4. รันคำสั่ง: `pip install flask requests waitress`
-5. รันโปรแกรม: `python app.py`
-6. เปิดเบราว์เซอร์พิมพ์: `localhost:8080` พร้อมใช้งานทันทีครับ!
+1. Install dependencies
+
+```bash
+npm install
+```
+
+2. Configure environment variables (PowerShell)
+
+```powershell
+$env:LINE_ACCESS_TOKEN="YOUR_TOKEN_HERE"
+$env:LINE_GROUP_ID="YOUR_GROUP_ID_HERE"
+$env:PORT="8080"
+$env:LINE_REQUEST_TIMEOUT_SEC="10"
+```
+
+Alternatively, create a `.env` file using values from `.env.example`.
+
+## Run
+
+```bash
+npm start
+```
+
+For development mode (auto reload):
+
+```bash
+npm run dev
+```
+
+Open http://localhost:8080 in your browser.
+
+## Endpoints
+
+- `GET /` web form
+- `POST /notify` send message to LINE Group
+- `GET /health` health check
