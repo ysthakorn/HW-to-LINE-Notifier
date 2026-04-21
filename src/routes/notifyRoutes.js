@@ -3,6 +3,8 @@ const path = require("path");
 
 const { buildHomeworkMessage } = require("../services/messageBuilder");
 const { pushTextMessage } = require("../services/lineClient");
+const { fetchHomeworkRows } = require("../services/sheetService");
+const env = require("../config/env");
 
 const router = express.Router();
 
@@ -14,9 +16,47 @@ router.get("/health", (req, res) => {
   res.json({ ok: true });
 });
 
+router.get("/api/config", (req, res) => {
+  res.json({
+    hasGoogleSheet: Boolean(env.googleSheetCsvUrl),
+  });
+});
+
+router.get("/api/sheet-rows", async (req, res) => {
+  try {
+    const rows = await fetchHomeworkRows();
+    return res.json({ ok: true, rows });
+  } catch (error) {
+    return res.status(400).json({
+      error: error.message || "failed_to_fetch_sheet_rows",
+    });
+  }
+});
+
 router.post("/notify", async (req, res) => {
   const payload = req.body || {};
   const message = buildHomeworkMessage(payload);
+
+  try {
+    await pushTextMessage(message);
+    return res.json({ ok: true });
+  } catch (error) {
+    const status = error.response?.status || 502;
+    const errorMessage =
+      error.response?.data || error.message || "line_request_failed";
+
+    return res.status(status).json({ error: errorMessage });
+  }
+});
+
+router.post("/notify-row", async (req, res) => {
+  const row = req.body || {};
+  const message = buildHomeworkMessage({
+    subject: row.subject,
+    title: row.title,
+    detail: row.detail,
+    due: row.due || row.date,
+  });
 
   try {
     await pushTextMessage(message);
