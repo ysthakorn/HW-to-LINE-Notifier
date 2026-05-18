@@ -4,8 +4,34 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>HW Notifier Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
+    @font-face {
+      font-family: 'LINE Seed Sans TH';
+      src: url('/fonts/WOFF2/LINESeedSansTH_W_Rg.woff2') format('woff2'),
+           url('/fonts/WOFF/LINESeedSansTH_W_Rg.woff') format('woff'),
+           url('/fonts/EOT/LINESeedSansTH_W_Rg.eot') format('embedded-opentype');
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'LINE Seed Sans TH';
+      src: url('/fonts/WOFF2/LINESeedSansTH_W_He.woff2') format('woff2'),
+           url('/fonts/WOFF/LINESeedSansTH_W_He.woff') format('woff'),
+           url('/fonts/EOT/LINESeedSansTH_W_He.eot') format('embedded-opentype');
+      font-weight: 600;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'LINE Seed Sans TH';
+      src: url('/fonts/WOFF2/LINESeedSansTH_W_Bd.woff2') format('woff2'),
+           url('/fonts/WOFF/LINESeedSansTH_W_Bd.woff') format('woff'),
+           url('/fonts/EOT/LINESeedSansTH_W_Bd.eot') format('embedded-opentype');
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+    }
     :root {
       --line-green: #06c755;
       --ink: #203040;
@@ -16,7 +42,7 @@
       --danger: #d94f4f;
       --border: #dce8ef;
     }
-    * { box-sizing: border-box; font-family: 'Sarabun', sans-serif; }
+    * { box-sizing: border-box; font-family: 'LINE Seed Sans TH', sans-serif; }
     body {
       margin: 0;
       min-height: 100vh;

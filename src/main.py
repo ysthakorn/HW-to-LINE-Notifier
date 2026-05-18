@@ -2,6 +2,7 @@ from pathlib import Path
 import requests
 from fastapi import FastAPI
 from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from .config import ENV
@@ -10,6 +11,7 @@ from .message_builder import build_homework_message
 from .sheet_service import fetch_homework_rows
 
 app = FastAPI()
+app.mount("/fonts", StaticFiles(directory=Path(__file__).resolve().parent.parent / "fonts"), name="fonts")
 
 
 class ManualNotifyPayload(BaseModel):
