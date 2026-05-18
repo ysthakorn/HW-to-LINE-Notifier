@@ -1,6 +1,4 @@
 from pathlib import Path
-from typing import Any
-
 import requests
 from fastapi import FastAPI
 from fastapi.responses import FileResponse, JSONResponse
@@ -46,7 +44,7 @@ def api_config() -> dict[str, bool]:
 
 
 @app.get("/api/sheet-rows")
-def api_sheet_rows() -> dict[str, Any] | JSONResponse:
+def api_sheet_rows():
     try:
         rows = fetch_homework_rows()
         return {"ok": True, "rows": rows}
@@ -55,7 +53,7 @@ def api_sheet_rows() -> dict[str, Any] | JSONResponse:
 
 
 @app.post("/notify")
-def notify(payload: ManualNotifyPayload) -> dict[str, bool] | JSONResponse:
+def notify(payload: ManualNotifyPayload):
     message = build_homework_message(payload.subject, payload.title, payload.detail, payload.due)
 
     try:
@@ -70,7 +68,7 @@ def notify(payload: ManualNotifyPayload) -> dict[str, bool] | JSONResponse:
 
 
 @app.post("/notify-row")
-def notify_row(payload: NotifyRowPayload) -> dict[str, bool] | JSONResponse:
+def notify_row(payload: NotifyRowPayload):
     message = build_homework_message(payload.subject, payload.title, payload.detail, payload.due or payload.date)
 
     try:
