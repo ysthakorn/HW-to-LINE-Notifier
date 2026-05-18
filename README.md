@@ -1,58 +1,53 @@
-# HW-to-LINE Notifier (Node.js)
+# HW-to-LINE Notifier (FastAPI)
 
-ระบบแจ้งเตือนการบ้านผ่าน Dashboard และส่งข้อความเข้า LINE Group โดยใช้ Node.js/Express
+ระบบแจ้งเตือนการบ้านผ่าน Dashboard และส่งข้อความเข้า LINE Group โดยใช้ Python + FastAPI
 
 ## Project Structure
 
 ```
 .
-|-- package.json
+|-- requirements.txt
 |-- .env.example
 `-- src/
-    |-- app.js
-    |-- server.js
-    |-- config/
-    |   `-- env.js
-    |-- routes/
-    |   `-- notifyRoutes.js
-    |-- services/
-    |   |-- lineClient.js
-    |   |-- messageBuilder.js
-    |   `-- sheetService.js
+    |-- main.py
+    |-- config.py
+    |-- line_client.py
+    |-- message_builder.py
+    |-- sheet_service.py
     `-- views/
         `-- index.html
 ```
 
 ## Setup
 
-1. Install dependencies
+1. Create virtual environment and install dependencies
 
 ```bash
-npm install
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 ```
 
-2. Configure environment variables (PowerShell)
+2. Configure environment variables
 
-```powershell
-$env:LINE_ACCESS_TOKEN="YOUR_TOKEN_HERE"
-$env:LINE_GROUP_ID="YOUR_GROUP_ID_HERE"
-$env:PORT="8080"
-$env:LINE_REQUEST_TIMEOUT_SEC="10"
-$env:GOOGLE_SHEET_CSV_URL="https://docs.google.com/spreadsheets/d/<SHEET_ID>/export?format=csv&gid=0"
+```bash
+cp .env.example .env
 ```
 
-Alternatively, create a `.env` file using values from `.env.example`.
+Edit `.env`:
+
+```env
+LINE_ACCESS_TOKEN=YOUR_TOKEN_HERE
+LINE_GROUP_ID=YOUR_GROUP_ID_HERE
+PORT=8080
+LINE_REQUEST_TIMEOUT_SEC=10
+GOOGLE_SHEET_CSV_URL=https://docs.google.com/spreadsheets/d/<SHEET_ID>/export?format=csv&gid=0
+```
 
 ## Run
 
 ```bash
-npm start
-```
-
-For development mode (auto reload):
-
-```bash
-npm run dev
+uvicorn src.main:app --host 0.0.0.0 --port 8080 --reload
 ```
 
 Open http://localhost:8080 in your browser.
@@ -68,18 +63,11 @@ Open http://localhost:8080 in your browser.
 - `detail` หรือ `description` หรือ `รายละเอียด`
 - `due` หรือ `date` หรือ `deadline` หรือ `กำหนดส่ง`
 
-ตัวอย่างข้อมูลจาก CSV ที่รองรับ:
-
-```csv
-subject,detail,date
-subject_name,detail,22/04/2569
-```
-
-ระบบจะแปลงปี พ.ศ. (เช่น `2569`) เป็น ค.ศ. อัตโนมัติเมื่อสร้างข้อความแจ้งเตือน
+ระบบรองรับการแปลงวันที่ปี พ.ศ. (เช่น `2569`) เป็น ค.ศ. อัตโนมัติเมื่อสร้างข้อความแจ้งเตือน
 
 ## Endpoints
 
-- `GET /` web form
+- `GET /` web dashboard
 - `GET /api/config` dashboard config
 - `GET /api/sheet-rows` load rows from Google Sheet CSV
 - `POST /notify` send message to LINE Group

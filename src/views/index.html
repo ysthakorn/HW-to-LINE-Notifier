@@ -24,11 +24,7 @@
       background: radial-gradient(circle at 20% -10%, #d0f5e2, transparent 30%),
                   linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
     }
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 28px 18px 34px;
-    }
+    .container { max-width: 1120px; margin: 0 auto; padding: 28px 18px 34px; }
     .hero {
       background: linear-gradient(130deg, #05b34c 0%, #06c755 40%, #35d985 100%);
       border-radius: 20px;
@@ -36,14 +32,28 @@
       color: white;
       box-shadow: 0 14px 30px rgba(6, 199, 85, 0.25);
       margin-bottom: 18px;
-      animation: rise .45s ease;
     }
     .hero h1 { margin: 0; font-size: 1.45rem; }
     .hero p { margin: 6px 0 0; opacity: .95; }
 
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin: 14px 0 0;
+    }
+    .stat {
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+    .stat .label { font-size: .82rem; opacity: .92; }
+    .stat .value { font-size: 1.15rem; font-weight: 700; margin-top: 2px; }
+
     .grid {
       display: grid;
-      grid-template-columns: 350px 1fr;
+      grid-template-columns: 340px 1fr;
       gap: 16px;
     }
     .card {
@@ -52,7 +62,6 @@
       border-radius: 18px;
       padding: 16px;
       box-shadow: 0 8px 20px rgba(32, 48, 64, 0.06);
-      animation: rise .5s ease;
     }
     .card h2 {
       margin: 0 0 12px;
@@ -92,6 +101,10 @@
       margin-bottom: 10px;
       flex-wrap: wrap;
     }
+    .sheet-toolbar input {
+      margin: 0;
+      max-width: 320px;
+    }
     .muted { color: var(--muted); font-size: .85rem; }
     .status { min-height: 1.1rem; font-size: .9rem; font-weight: 700; margin-top: 8px; }
     .table-wrap { overflow: auto; border-radius: 12px; border: 1px solid var(--border); }
@@ -101,12 +114,9 @@
     .danger { color: var(--danger); }
     .row-send { white-space: nowrap; }
 
-    @keyframes rise {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
     @media (max-width: 920px) {
       .grid { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -115,6 +125,11 @@
     <section class="hero">
       <h1>Homework LINE Dashboard</h1>
       <p>ดึงการบ้านจาก Google Sheet แล้วส่งเข้า LINE ได้ทันทีทีละแถว</p>
+      <div class="stats">
+        <div class="stat"><div class="label">รายการทั้งหมด</div><div class="value" id="totalRows">0</div></div>
+        <div class="stat"><div class="label">ส่งแล้ว</div><div class="value" id="sentRows">0</div></div>
+        <div class="stat"><div class="label">สถานะล่าสุด</div><div class="value" id="lastState">พร้อมใช้งาน</div></div>
+      </div>
     </section>
 
     <section class="grid">
@@ -142,6 +157,7 @@
         <h2>รายการจาก Google Sheet</h2>
         <div class="sheet-toolbar">
           <button id="reloadSheetBtn" type="button">รีโหลดจากชีต</button>
+          <input id="filterInput" type="text" placeholder="ค้นหา วิชา/หัวข้อ/รายละเอียด">
           <span class="muted" id="sheetHint">โหลดข้อมูลล่าสุดจาก CSV export</span>
         </div>
         <div class="status" id="sheetStatus"></div>
@@ -172,11 +188,23 @@
     const sheetStatus = document.getElementById('sheetStatus');
     const reloadSheetBtn = document.getElementById('reloadSheetBtn');
     const sheetHint = document.getElementById('sheetHint');
+    const filterInput = document.getElementById('filterInput');
+    const totalRows = document.getElementById('totalRows');
+    const sentRows = document.getElementById('sentRows');
+    const lastState = document.getElementById('lastState');
+
     let sheetData = [];
+    let sentCount = 0;
 
     function setStatus(el, text, isError = false) {
       el.textContent = text;
       el.style.color = isError ? '#d94f4f' : '#1f7a44';
+      lastState.textContent = text || 'พร้อมใช้งาน';
+    }
+
+    function updateStats() {
+      totalRows.textContent = String(sheetData.length);
+      sentRows.textContent = String(sentCount);
     }
 
     async function requestJson(url, options = {}) {
@@ -204,6 +232,20 @@
       `;
     }
 
+    function renderFilteredRows() {
+      const query = filterInput.value.trim().toLowerCase();
+      const filtered = !query
+        ? sheetData
+        : sheetData.filter((row) => `${row.subject || ''} ${row.title || ''} ${row.detail || ''}`.toLowerCase().includes(query));
+
+      if (filtered.length === 0) {
+        sheetRows.innerHTML = '<tr><td colspan="6" class="muted">ไม่พบข้อมูลที่ตรงกับคำค้นหา</td></tr>';
+        return;
+      }
+
+      sheetRows.innerHTML = filtered.map((row) => rowHtml(row, sheetData.indexOf(row))).join('');
+    }
+
     async function loadSheetRows() {
       sheetRows.innerHTML = '<tr><td colspan="6" class="muted">กำลังโหลด...</td></tr>';
       sheetStatus.textContent = '';
@@ -211,16 +253,20 @@
       try {
         const data = await requestJson('/api/sheet-rows');
         if (!data.rows || data.rows.length === 0) {
+          sheetData = [];
+          updateStats();
           sheetRows.innerHTML = '<tr><td colspan="6" class="muted">ไม่มีข้อมูลในชีต</td></tr>';
           setStatus(sheetStatus, 'โหลดสำเร็จ แต่ยังไม่มีแถวข้อมูล');
           return;
         }
 
         sheetData = data.rows;
-        sheetRows.innerHTML = data.rows.map(rowHtml).join('');
+        updateStats();
+        renderFilteredRows();
         setStatus(sheetStatus, `โหลดสำเร็จ ${data.rows.length} แถว`);
       } catch (err) {
         sheetData = [];
+        updateStats();
         sheetRows.innerHTML = '<tr><td colspan="6" class="danger">โหลดข้อมูลจากชีตไม่สำเร็จ</td></tr>';
         setStatus(sheetStatus, err.message || 'โหลดข้อมูลล้มเหลว', true);
       }
@@ -237,6 +283,8 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(Object.fromEntries(new FormData(manualForm)))
         });
+        sentCount += 1;
+        updateStats();
         setStatus(manualStatus, 'ส่งสำเร็จ');
         manualForm.reset();
       } catch (err) {
@@ -267,6 +315,8 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(rowData)
         });
+        sentCount += 1;
+        updateStats();
         button.textContent = 'ส่งแล้ว';
         setStatus(sheetStatus, `ส่งแถว ${rowData.rowId || ''} สำเร็จ`);
       } catch (err) {
@@ -280,6 +330,10 @@
       loadSheetRows();
     };
 
+    filterInput.oninput = () => {
+      renderFilteredRows();
+    };
+
     (async () => {
       try {
         const config = await requestJson('/api/config');
@@ -288,6 +342,7 @@
           sheetHint.classList.add('danger');
         }
       } catch (_) {}
+      updateStats();
       loadSheetRows();
     })();
   </script>
