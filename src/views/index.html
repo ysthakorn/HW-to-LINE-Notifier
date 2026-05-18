@@ -234,16 +234,20 @@
 
     function renderFilteredRows() {
       const query = filterInput.value.trim().toLowerCase();
-      const filtered = !query
-        ? sheetData
-        : sheetData.filter((row) => `${row.subject || ''} ${row.title || ''} ${row.detail || ''}`.toLowerCase().includes(query));
+      const filteredWithIndex = [];
+      for (let index = 0; index < sheetData.length; index += 1) {
+        const row = sheetData[index];
+        if (!query || `${row.subject || ''} ${row.title || ''} ${row.detail || ''}`.toLowerCase().includes(query)) {
+          filteredWithIndex.push({ row, index });
+        }
+      }
 
-      if (filtered.length === 0) {
+      if (filteredWithIndex.length === 0) {
         sheetRows.innerHTML = '<tr><td colspan="6" class="muted">ไม่พบข้อมูลที่ตรงกับคำค้นหา</td></tr>';
         return;
       }
 
-      sheetRows.innerHTML = filtered.map((row) => rowHtml(row, sheetData.indexOf(row))).join('');
+      sheetRows.innerHTML = filteredWithIndex.map(({ row, index }) => rowHtml(row, index)).join('');
     }
 
     async function loadSheetRows() {

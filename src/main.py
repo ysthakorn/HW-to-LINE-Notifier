@@ -28,6 +28,12 @@ class NotifyRowPayload(BaseModel):
     date: str | None = None
 
 
+def _line_error_response(error: requests.HTTPError) -> JSONResponse:
+    status = error.response.status_code if error.response is not None else 502
+    detail = error.response.text.strip() if error.response is not None and error.response.text else ""
+    return JSONResponse(status_code=status, content={"error": detail or "line_request_failed"})
+
+
 @app.get("/")
 def root() -> FileResponse:
     return FileResponse(Path(__file__).parent / "views" / "index.html")
@@ -48,8 +54,12 @@ def api_sheet_rows():
     try:
         rows = fetch_homework_rows()
         return {"ok": True, "rows": rows}
-    except Exception as error:  # noqa: BLE001
-        return JSONResponse(status_code=400, content={"error": str(error) or "failed_to_fetch_sheet_rows"})
+    except ValueError:
+        return JSONResponse(status_code=400, content={"error": "GOOGLE_SHEET_CSV_URL is not configured"})
+    except requests.RequestException:
+        return JSONResponse(status_code=400, content={"error": "failed_to_fetch_sheet_rows"})
+    except Exception:  # noqa: BLE001
+        return JSONResponse(status_code=400, content={"error": "failed_to_fetch_sheet_rows"})
 
 
 @app.post("/notify")
@@ -60,11 +70,13 @@ def notify(payload: ManualNotifyPayload):
         push_text_message(message)
         return {"ok": True}
     except requests.HTTPError as error:
-        status = error.response.status_code if error.response is not None else 502
-        detail = error.response.text if error.response is not None else str(error)
-        return JSONResponse(status_code=status, content={"error": detail or "line_request_failed"})
-    except Exception as error:  # noqa: BLE001
-        return JSONResponse(status_code=502, content={"error": str(error) or "line_request_failed"})
+        return _line_error_response(error)
+    except requests.Timeout:
+        return JSONResponse(status_code=504, content={"error": "line_request_timeout"})
+    except requests.RequestException:
+        return JSONResponse(status_code=502, content={"error": "line_request_failed"})
+    except Exception:  # noqa: BLE001
+        return JSONResponse(status_code=502, content={"error": "line_request_failed"})
 
 
 @app.post("/notify-row")
@@ -75,8 +87,10 @@ def notify_row(payload: NotifyRowPayload):
         push_text_message(message)
         return {"ok": True}
     except requests.HTTPError as error:
-        status = error.response.status_code if error.response is not None else 502
-        detail = error.response.text if error.response is not None else str(error)
-        return JSONResponse(status_code=status, content={"error": detail or "line_request_failed"})
-    except Exception as error:  # noqa: BLE001
-        return JSONResponse(status_code=502, content={"error": str(error) or "line_request_failed"})
+        return _line_error_response(error)
+    except requests.Timeout:
+        return JSONResponse(status_code=504, content={"error": "line_request_timeout"})
+    except requests.RequestException:
+        return JSONResponse(status_code=502, content={"error": "line_request_failed"})
+    except Exception:  # noqa: BLE001
+        return JSONResponse(status_code=502, content={"error": "line_request_failed"})

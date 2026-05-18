@@ -19,6 +19,6 @@ def push_text_message(message_text: str) -> None:
         LINE_PUSH_API_URL,
         json=payload,
         headers=headers,
-        timeout=ENV.line_request_timeout_sec,
+        timeout=ENV.request_timeout_sec,
     )
     response.raise_for_status()

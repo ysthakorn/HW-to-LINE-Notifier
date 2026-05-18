@@ -42,19 +42,23 @@ def parse_csv_text(csv_text: str) -> list[dict[str, str]]:
     rows: list[dict[str, str]] = []
     for row in reader:
         normalized: dict[str, str] = {}
-        for key, value in (row or {}).items():
+        for key, value in row.items():
             normalized[normalize_header(key)] = (value or "").strip()
         rows.append(normalized)
     return rows
+
+
+def has_any_content(row: dict[str, str | int]) -> bool:
+    return bool(row["subject"] or row["title"] or row["detail"] or row["due"])
 
 
 def fetch_homework_rows() -> list[dict[str, str | int]]:
     if not ENV.google_sheet_csv_url:
         raise ValueError("GOOGLE_SHEET_CSV_URL is not configured")
 
-    response = requests.get(ENV.google_sheet_csv_url, timeout=ENV.line_request_timeout_sec)
+    response = requests.get(ENV.google_sheet_csv_url, timeout=ENV.request_timeout_sec)
     response.raise_for_status()
 
     raw_rows = parse_csv_text(response.text)
     mapped_rows = [map_to_homework_row(row, index) for index, row in enumerate(raw_rows)]
-    return [row for row in mapped_rows if row["subject"] or row["title"] or row["detail"] or row["due"]]
+    return [row for row in mapped_rows if has_any_content(row)]
