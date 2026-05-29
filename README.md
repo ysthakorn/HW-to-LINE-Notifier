@@ -20,7 +20,14 @@
     |   |-- messageBuilder.js
     |   `-- sheetService.js
     `-- views/
-        `-- index.html
+        |-- index.html
+        |-- setup.html
+        |-- docs.html
+        |-- status.html
+        `-- assets/
+            |-- styles.css
+            |-- dashboard.js
+            `-- status.js
 ```
 
 ## Setup
@@ -57,6 +64,13 @@ npm run dev
 
 Open http://localhost:8080 in your browser.
 
+Pages:
+
+- `/` Dashboard
+- `/setup` Setup guide
+- `/docs` API documentation
+- `/status` System status
+
 ## Google Sheet Dashboard
 
 ใส่ URL แบบ CSV export ลงใน `GOOGLE_SHEET_CSV_URL` แล้วหน้า Dashboard จะโหลดรายการจากชีตให้เอง พร้อมปุ่ม `ส่งแถวนี้` รายการละ 1 ปุ่ม
@@ -80,6 +94,9 @@ subject_name,detail,22/04/2569
 ## Endpoints
 
 - `GET /` web form
+- `GET /setup` setup guide
+- `GET /docs` API docs
+- `GET /status` system status
 - `GET /api/config` dashboard config
 - `GET /api/sheet-rows` load rows from Google Sheet CSV
 - `POST /notify` send message to LINE Group
