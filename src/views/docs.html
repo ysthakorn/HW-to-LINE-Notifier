@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HW Notifier API Docs</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+  <div class="container">
+    <nav class="nav">
+      <div class="brand">HW Notifier</div>
+      <div class="nav-links">
+        <a class="nav-link" href="/">Dashboard</a>
+        <a class="nav-link" href="/setup">Setup</a>
+        <a class="nav-link is-active" href="/docs">API Docs</a>
+        <a class="nav-link" href="/status">Status</a>
+      </div>
+    </nav>
+
+    <section class="hero">
+      <h1>API Docs</h1>
+      <p>รายการ endpoint และตัวอย่าง payload สำหรับเรียกใช้งานระบบ</p>
+      <div class="meta">
+        <span class="pill">REST</span>
+        <span class="pill">JSON</span>
+        <span class="pill">LINE Notify</span>
+      </div>
+    </section>
+
+    <section class="section">
+      <article class="card">
+        <h2>Endpoints</h2>
+        <table class="table-plain">
+          <thead>
+            <tr>
+              <th>Method</th>
+              <th>Path</th>
+              <th>คำอธิบาย</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge">GET</span></td>
+              <td>/</td>
+              <td>หน้า Dashboard</td>
+            </tr>
+            <tr>
+              <td><span class="badge">GET</span></td>
+              <td>/setup</td>
+              <td>หน้า Setup Guide</td>
+            </tr>
+            <tr>
+              <td><span class="badge">GET</span></td>
+              <td>/docs</td>
+              <td>หน้า API Docs</td>
+            </tr>
+            <tr>
+              <td><span class="badge">GET</span></td>
+              <td>/status</td>
+              <td>หน้า Status</td>
+            </tr>
+            <tr>
+              <td><span class="badge">GET</span></td>
+              <td>/api/config</td>
+              <td>เช็คว่าตั้งค่า Google Sheet แล้วหรือยัง</td>
+            </tr>
+            <tr>
+              <td><span class="badge">GET</span></td>
+              <td>/api/sheet-rows</td>
+              <td>ดึงแถวข้อมูลจาก Google Sheet CSV</td>
+            </tr>
+            <tr>
+              <td><span class="badge">POST</span></td>
+              <td>/notify</td>
+              <td>ส่งข้อความจาก payload แบบ manual</td>
+            </tr>
+            <tr>
+              <td><span class="badge">POST</span></td>
+              <td>/notify-row</td>
+              <td>ส่งข้อความจากแถวในชีต</td>
+            </tr>
+            <tr>
+              <td><span class="badge">GET</span></td>
+              <td>/health</td>
+              <td>health check</td>
+            </tr>
+          </tbody>
+        </table>
+      </article>
+
+      <div class="section-grid">
+        <article class="card">
+          <h2>Payload: /notify</h2>
+          <div class="code-block">
+{
+  "subject": "Operating Systems",
+  "title": "Quiz",
+  "detail": "Chapter 4",
+  "due": "2026-05-29T18:00"
+}
+          </div>
+        </article>
+        <article class="card">
+          <h2>cURL Example</h2>
+          <div class="code-block">
+curl -X POST http://localhost:8080/notify \
+  -H "Content-Type: application/json" \
+  -d '{"subject":"OS","title":"Quiz","detail":"Chapter 4","due":"2026-05-29T18:00"}'
+          </div>
+        </article>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

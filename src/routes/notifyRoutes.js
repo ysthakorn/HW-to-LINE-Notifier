@@ -12,6 +12,18 @@ router.get("/", (req, res) => {
   res.sendFile(path.resolve(__dirname, "../views/index.html"));
 });
 
+router.get("/setup", (req, res) => {
+  res.sendFile(path.resolve(__dirname, "../views/setup.html"));
+});
+
+router.get("/docs", (req, res) => {
+  res.sendFile(path.resolve(__dirname, "../views/docs.html"));
+});
+
+router.get("/status", (req, res) => {
+  res.sendFile(path.resolve(__dirname, "../views/status.html"));
+});
+
 router.get("/health", (req, res) => {
   res.json({ ok: true });
 });

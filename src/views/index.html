@@ -3,293 +3,110 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>HW Notifier Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --line-green: #06c755;
-      --ink: #203040;
-      --bg-top: #e9f8f2;
-      --bg-bottom: #f6fbff;
-      --card: #ffffff;
-      --muted: #6a7a87;
-      --danger: #d94f4f;
-      --border: #dce8ef;
-    }
-    * { box-sizing: border-box; font-family: 'Sarabun', sans-serif; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      color: var(--ink);
-      background: radial-gradient(circle at 20% -10%, #d0f5e2, transparent 30%),
-                  linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
-    }
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 28px 18px 34px;
-    }
-    .hero {
-      background: linear-gradient(130deg, #05b34c 0%, #06c755 40%, #35d985 100%);
-      border-radius: 20px;
-      padding: 20px 22px;
-      color: white;
-      box-shadow: 0 14px 30px rgba(6, 199, 85, 0.25);
-      margin-bottom: 18px;
-      animation: rise .45s ease;
-    }
-    .hero h1 { margin: 0; font-size: 1.45rem; }
-    .hero p { margin: 6px 0 0; opacity: .95; }
-
-    .grid {
-      display: grid;
-      grid-template-columns: 350px 1fr;
-      gap: 16px;
-    }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 16px;
-      box-shadow: 0 8px 20px rgba(32, 48, 64, 0.06);
-      animation: rise .5s ease;
-    }
-    .card h2 {
-      margin: 0 0 12px;
-      font-size: 1.05rem;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    label { display: block; margin-bottom: 6px; color: var(--muted); font-size: .86rem; font-weight: 600; }
-    input, textarea {
-      width: 100%;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 11px;
-      font-size: .95rem;
-      margin-bottom: 11px;
-      background: #fcfeff;
-    }
-    input:focus, textarea:focus { outline: none; border-color: #87d9ad; background: white; }
-    button {
-      border: 0;
-      border-radius: 10px;
-      background: var(--line-green);
-      color: white;
-      cursor: pointer;
-      padding: 10px 12px;
-      font-weight: 700;
-      transition: .2s;
-    }
-    button:hover { transform: translateY(-1px); background: #05b34c; }
-    button:disabled { opacity: .65; transform: none; cursor: not-allowed; }
-
-    .sheet-toolbar {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      margin-bottom: 10px;
-      flex-wrap: wrap;
-    }
-    .muted { color: var(--muted); font-size: .85rem; }
-    .status { min-height: 1.1rem; font-size: .9rem; font-weight: 700; margin-top: 8px; }
-    .table-wrap { overflow: auto; border-radius: 12px; border: 1px solid var(--border); }
-    table { border-collapse: collapse; width: 100%; min-width: 670px; background: white; }
-    th, td { padding: 10px 8px; border-bottom: 1px solid #edf3f7; vertical-align: top; font-size: .9rem; }
-    th { text-align: left; background: #f7fcfa; font-size: .84rem; color: #4e616f; position: sticky; top: 0; }
-    .danger { color: var(--danger); }
-    .row-send { white-space: nowrap; }
-
-    @keyframes rise {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @media (max-width: 920px) {
-      .grid { grid-template-columns: 1fr; }
-    }
-  </style>
+  <title>HW Notifier Dev Console</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/styles.css">
 </head>
 <body>
   <div class="container">
+    <nav class="nav">
+      <div class="brand">HW Notifier</div>
+      <div class="nav-links">
+        <a class="nav-link is-active" href="/">Dashboard</a>
+        <a class="nav-link" href="/setup">Setup</a>
+        <a class="nav-link" href="/docs">API Docs</a>
+        <a class="nav-link" href="/status">Status</a>
+      </div>
+    </nav>
+
     <section class="hero">
-      <h1>Homework LINE Dashboard</h1>
-      <p>ดึงการบ้านจาก Google Sheet แล้วส่งเข้า LINE ได้ทันทีทีละแถว</p>
+      <h1>Dashboard</h1>
+      <p>ส่งการบ้านเข้า LINE ได้ทันที ทั้งแบบ manual และจาก Google Sheet CSV</p>
+      <div class="meta">
+        <span class="pill">Node.js + Express</span>
+        <span class="pill">LINE Messaging API</span>
+        <span class="pill">Google Sheet CSV</span>
+      </div>
     </section>
 
     <section class="grid">
+      <div class="side-stack">
+        <article class="card">
+          <div class="panel-title">
+            <h2>Manual Payload <small>ส่งแบบกำหนดเอง</small></h2>
+            <span class="tag">POST /notify</span>
+          </div>
+          <form id="manualForm">
+            <label>Subject</label>
+            <input name="subject" required placeholder="e.g. Database Systems">
+
+            <label>Title</label>
+            <input name="title" required placeholder="Lab #3: Indexing">
+
+            <label>Detail</label>
+            <textarea name="detail" rows="3" required placeholder="Short brief or instructions"></textarea>
+
+            <label>Due (local)</label>
+            <input type="datetime-local" name="due" required>
+
+            <button type="submit" id="manualSubmitBtn">Send to LINE</button>
+            <div class="status" id="manualStatus"></div>
+          </form>
+        </article>
+
+        <article class="card">
+          <div class="panel-title">
+            <h2>Environment Quick View</h2>
+            <span class="tag">/api/config</span>
+          </div>
+          <div class="kv">
+            <span>CSV Source</span>
+            <strong id="sheetHint">Loading config...</strong>
+            <span>Send Row</span>
+            <strong>POST /notify-row</strong>
+            <span>Health</span>
+            <strong>GET /health</strong>
+          </div>
+          <div class="code-block" aria-label="curl example">
+            curl -X POST http://localhost:8080/notify \
+              -H "Content-Type: application/json" \
+              -d '{"subject":"OS","title":"Quiz","detail":"Chapter 4","due":"2026-05-29T18:00"}'
+          </div>
+        </article>
+      </div>
+
       <article class="card">
-        <h2>ส่งเองแบบ Manual</h2>
-        <form id="manualForm">
-          <label>ชื่อวิชา</label>
-          <input name="subject" required placeholder="ระบุวิชา">
-
-          <label>หัวข้อ/งาน</label>
-          <input name="title" required placeholder="ระบุชื่อหัวข้อ">
-
-          <label>รายละเอียด</label>
-          <textarea name="detail" rows="3" required placeholder="รายละเอียดเพิ่มเติม"></textarea>
-
-          <label>กำหนดส่ง</label>
-          <input type="datetime-local" name="due" required>
-
-          <button type="submit" id="manualSubmitBtn">ส่งข้อมูลเข้า LINE</button>
-          <div class="status" id="manualStatus"></div>
-        </form>
-      </article>
-
-      <article class="card">
-        <h2>รายการจาก Google Sheet</h2>
+        <div class="panel-title">
+          <h2>Google Sheet Queue</h2>
+          <span class="tag">GET /api/sheet-rows</span>
+        </div>
         <div class="sheet-toolbar">
-          <button id="reloadSheetBtn" type="button">รีโหลดจากชีต</button>
-          <span class="muted" id="sheetHint">โหลดข้อมูลล่าสุดจาก CSV export</span>
+          <button id="reloadSheetBtn" type="button" class="ghost">Reload Sheet</button>
+          <span class="muted">Pull latest rows from CSV export</span>
         </div>
         <div class="status" id="sheetStatus"></div>
         <div class="table-wrap">
-          <table>
+          <table class="table">
             <thead>
               <tr>
                 <th>#</th>
-                <th>วิชา</th>
-                <th>หัวข้อ</th>
-                <th>รายละเอียด</th>
-                <th>วันที่</th>
-                <th>ส่ง</th>
+                <th>Subject</th>
+                <th>Title</th>
+                <th>Detail</th>
+                <th>Due</th>
+                <th>Send</th>
               </tr>
             </thead>
             <tbody id="sheetRows"></tbody>
           </table>
         </div>
+        <div class="muted" style="margin-top: 10px;">
+          Tips: column names supported -> subject/subject_name/วิชา, title/topic/หัวข้อ, detail/description/รายละเอียด, due/date/deadline/กำหนดส่ง.
+        </div>
       </article>
     </section>
   </div>
 
-  <script>
-    const manualForm = document.getElementById('manualForm');
-    const manualSubmitBtn = document.getElementById('manualSubmitBtn');
-    const manualStatus = document.getElementById('manualStatus');
-    const sheetRows = document.getElementById('sheetRows');
-    const sheetStatus = document.getElementById('sheetStatus');
-    const reloadSheetBtn = document.getElementById('reloadSheetBtn');
-    const sheetHint = document.getElementById('sheetHint');
-    let sheetData = [];
-
-    function setStatus(el, text, isError = false) {
-      el.textContent = text;
-      el.style.color = isError ? '#d94f4f' : '#1f7a44';
-    }
-
-    async function requestJson(url, options = {}) {
-      const res = await fetch(url, options);
-      const body = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        throw new Error(body.error || 'request_failed');
-      }
-      return body;
-    }
-
-    function rowHtml(row, index) {
-      const safe = (v) => (v || '-').toString();
-      return `
-        <tr>
-          <td>${safe(row.rowId)}</td>
-          <td>${safe(row.subject)}</td>
-          <td>${safe(row.title)}</td>
-          <td>${safe(row.detail)}</td>
-          <td>${safe(row.due)}</td>
-          <td class="row-send">
-            <button type="button" data-row-index="${index}" class="send-row-btn">ส่งแถวนี้</button>
-          </td>
-        </tr>
-      `;
-    }
-
-    async function loadSheetRows() {
-      sheetRows.innerHTML = '<tr><td colspan="6" class="muted">กำลังโหลด...</td></tr>';
-      sheetStatus.textContent = '';
-
-      try {
-        const data = await requestJson('/api/sheet-rows');
-        if (!data.rows || data.rows.length === 0) {
-          sheetRows.innerHTML = '<tr><td colspan="6" class="muted">ไม่มีข้อมูลในชีต</td></tr>';
-          setStatus(sheetStatus, 'โหลดสำเร็จ แต่ยังไม่มีแถวข้อมูล');
-          return;
-        }
-
-        sheetData = data.rows;
-        sheetRows.innerHTML = data.rows.map(rowHtml).join('');
-        setStatus(sheetStatus, `โหลดสำเร็จ ${data.rows.length} แถว`);
-      } catch (err) {
-        sheetData = [];
-        sheetRows.innerHTML = '<tr><td colspan="6" class="danger">โหลดข้อมูลจากชีตไม่สำเร็จ</td></tr>';
-        setStatus(sheetStatus, err.message || 'โหลดข้อมูลล้มเหลว', true);
-      }
-    }
-
-    manualForm.onsubmit = async (e) => {
-      e.preventDefault();
-      manualSubmitBtn.disabled = true;
-      setStatus(manualStatus, 'กำลังส่ง...');
-
-      try {
-        await requestJson('/notify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(Object.fromEntries(new FormData(manualForm)))
-        });
-        setStatus(manualStatus, 'ส่งสำเร็จ');
-        manualForm.reset();
-      } catch (err) {
-        setStatus(manualStatus, err.message || 'ส่งไม่สำเร็จ', true);
-      } finally {
-        manualSubmitBtn.disabled = false;
-      }
-    };
-
-    sheetRows.onclick = async (e) => {
-      const button = e.target.closest('.send-row-btn');
-      if (!button) {
-        return;
-      }
-
-      const rowIndex = Number(button.getAttribute('data-row-index'));
-      const rowData = sheetData[rowIndex];
-      if (!rowData) {
-        setStatus(sheetStatus, 'ข้อมูลแถวไม่ถูกต้อง', true);
-        return;
-      }
-
-      button.disabled = true;
-      button.textContent = 'กำลังส่ง...';
-      try {
-        await requestJson('/notify-row', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(rowData)
-        });
-        button.textContent = 'ส่งแล้ว';
-        setStatus(sheetStatus, `ส่งแถว ${rowData.rowId || ''} สำเร็จ`);
-      } catch (err) {
-        button.disabled = false;
-        button.textContent = 'ส่งแถวนี้';
-        setStatus(sheetStatus, err.message || 'ส่งไม่สำเร็จ', true);
-      }
-    };
-
-    reloadSheetBtn.onclick = () => {
-      loadSheetRows();
-    };
-
-    (async () => {
-      try {
-        const config = await requestJson('/api/config');
-        if (!config.hasGoogleSheet) {
-          sheetHint.textContent = 'ยังไม่ได้ตั้ง GOOGLE_SHEET_CSV_URL ใน .env';
-          sheetHint.classList.add('danger');
-        }
-      } catch (_) {}
-      loadSheetRows();
-    })();
-  </script>
+  <script src="/assets/dashboard.js"></script>
 </body>
 </html>
